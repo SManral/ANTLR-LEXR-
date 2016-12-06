@@ -1,17 +1,10 @@
-//Lab 8 XML Lexer
+//Lab 8 JSON Lexer
 
-
-lexer grammar XML_Lexer;
+lexer grammar JSON_Lexer;
 
 //check first letter is a letter or underscore and not x or X so it can't start with
-//anyform of xml
-fragment BEGINELEMENT: [a-wyzA-WYZ_];
 
-//valid chars for element name
-fragment OKCHAR: [a-zA-Z0-9-._]+ ;
-
-
-      
+//valid chars for element name       
 
 
 //EMAIL
@@ -22,9 +15,7 @@ fragment DOMAIN_SUBPART : [a-zA-Z0-9-]+;
 fragment LOCAL: LOCAL_SUBPART('.' LOCAL_SUBPART)* ;
 fragment DOMAIN: DOMAIN_SUBPART('.' DOMAIN_SUBPART)*;
 
-EMAIL: '<''email''>' LOCAL '@' DOMAIN '</''email''>' {
-System.out.println("valid email: "+getText());
-};
+
 
 
 
@@ -69,9 +60,7 @@ fragment YEAR: TWO ZERO DIGIT DIGIT
   | TWO ONE ZERO ZERO
   ;
 
- DATE: '<''date''>' DAY SLASH MONTH SLASH YEAR '</''date''>'{
-System.out.println("valid date: "+getText());
-};
+ 
 
 
 
@@ -87,16 +76,10 @@ fragment DIGIT3 : DIGIT DIGIT DIGIT;
 //[0-9][0-9][0-9][0-9]
 fragment DIGIT4 : DIGIT DIGIT DIGIT DIGIT;
 
-
-PHONE : '<''phone''>'(DIGIT3  HYPHEN DIGIT3 HYPHEN DIGIT4
+ fragment PHONEN : (DIGIT3  HYPHEN DIGIT3 HYPHEN DIGIT4
   | DIGIT3 DOT DIGIT3 DOT DIGIT4
   | DIGIT3 SPACE DIGIT3 SPACE DIGIT4
-  | PARENTHESISopen DIGIT3 PARENTHESISclose DIGIT3 HYPHEN DIGIT4)'</''phone''>'
-  {
-  System.out.println("valid phone: "+getText());
-  };
-
-
+  | PARENTHESISopen DIGIT3 PARENTHESISclose DIGIT3 HYPHEN DIGIT4) ;
 
 
 
@@ -120,22 +103,34 @@ fragment JCB: TWO ONE THREE ONE DIGIT4 DIGIT4 DIGIT4
   | ONE EIGHT ZERO ZERO DIGIT4 DIGIT4 DIGIT4
   | THREE FIVE DIGIT DIGIT DIGIT4 DIGIT4 DIGIT4
   ;
+fragment CC: (VISA | VISAOLD | MASTERCARD | AMERICANEXP |DINER | DISCOVER | JCB);
+  
 
-  CREDITCARD: '<''creditcard''>'(VISA
-  | VISAOLD
-  | MASTERCARD
-  | AMERICANEXP
-  | DINER
-  | DISCOVER
-  | JCB)'</''creditcard''>'
+//OTHER
+fragment OKCHAR: [a-zA-Z0-9-._]+  ;
+fragment OTHERS: [a-zA-Z0-9-_~.!$&'()*+,;=:' ']+;
+
+
+OPEN: '{' {
+System.out.println("OPENING"+getText());
+};
+EMAIL: '"EMAIL":' '"'LOCAL '@' DOMAIN'",' {
+System.out.println("valid email: "+getText());
+};
+ DATE: '"DATE":' '"'DAY SLASH MONTH SLASH YEAR'",'{
+System.out.println("valid date: "+getText());
+};
+PHONE: '"PHONE":' '"'PHONEN'",'{
+  System.out.println("valid phone: "+getText());
+};
+CREDITCARD: '"CREDITCARD":' '"'CC'"' 
  {
     System.out.println("valid credit card: "+getText());
   };
-//OTHER
-fragment OTHERS: [a-zA-Z0-9-_~.!$&'()*+,;=:' ']+;
-OTHER: '<''address''>'OTHERS'</''address''>'
-{
+OTHER: '"ADDRESS":' '"' OTHERS '"'{
     System.out.println("valid other: "+getText());
   };
-
+CLOSE: '}' {
+System.out.println("CLOSING"+getText());
+};
 WS: [ \r\n\t]+         {skip();} ;
